@@ -1,0 +1,26 @@
+{
+  "name": "ambientweatherserver",
+  "version": "1.0.0",
+  "description": "Server for downloading weather data from the API",
+  "repository": "AmbientWeather",
+  "main": "./dist/main.js",
+  "scripts": {
+    "start": "node ./dist/index.js"
+  },
+  "author": "Emi",
+  "dependencies": {
+    "@types/es6-promise": "0.0.32",
+    "body-parser": "latest",
+    "express": "^4.14.0",
+    "gulp": "gulpjs/gulp#4.0",
+    "gulp-typescript": "latest",
+    "serve-static": "^1.12.1",
+    "typings": "^1.4.0"
+  },
+  "devDependencies": {
+    "tslint": "latest",
+    "clear": "0.0.1",
+    "connect": "^3.4.0",
+    "express": "^4.13.3"
+  }
+}

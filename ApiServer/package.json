@@ -5,8 +5,8 @@
   "repository": "AmbientWeather",
   "main": "./dist/main.js",
   "scripts": {
-    "setup": "npm install ; typings install",
-    "start": "gulp compile ; node ./dist/index.js",
+    "setup": "npm install && typings install",
+    "start": "gulp compile && node ./dist/index.js",
     "compile": "gulp compile"
   },
   "author": "Emi",

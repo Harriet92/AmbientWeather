@@ -5,7 +5,9 @@
   "repository": "AmbientWeather",
   "main": "./dist/main.js",
   "scripts": {
-    "start": "node ./dist/index.js"
+    "setup": "npm install ; typings install",
+    "start": "gulp compile ; node ./dist/index.js",
+    "compile": "gulp compile"
   },
   "author": "Emi",
   "dependencies": {
@@ -21,6 +23,8 @@
     "tslint": "latest",
     "clear": "0.0.1",
     "connect": "^3.4.0",
-    "express": "^4.13.3"
+    "express": "^4.13.3",
+    "gulp-cli": "latest",
+    "typings": "latest"
   }
 }

@@ -1,4 +1,4 @@
-/// <reference path="../../typings/tsd.d.ts" />
+/// <reference path="../../typings/index.d.ts" />
 
 import Environment from "../common/config/constants/Environment";
 

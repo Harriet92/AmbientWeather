@@ -16,6 +16,7 @@
     "express": "^4.14.0",
     "gulp": "gulpjs/gulp#4.0",
     "gulp-typescript": "latest",
+    "request": "^2.81.0",
     "serve-static": "^1.12.1",
     "typings": "^1.4.0"
   },

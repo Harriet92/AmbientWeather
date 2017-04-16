@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import Environment from "../common/config/constants/Environment";
 
 class TestConstants {

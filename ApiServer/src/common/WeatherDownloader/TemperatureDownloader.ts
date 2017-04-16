@@ -1,5 +1,3 @@
-/// <reference path="../../../typings/index.d.ts" />
-
 import * as request from "request";
 
 export default class TemperatureDownloader {

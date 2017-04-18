@@ -27,7 +27,6 @@
  *
  */
 
-
 static char VERSION[] = "testing...";
 
 #include <stdint.h>
@@ -43,7 +42,6 @@ static char VERSION[] = "testing...";
 #include <stdarg.h>
 #include <getopt.h>
 
-
 #include "clk.h"
 #include "gpio.h"
 #include "dma.h"
@@ -52,20 +50,19 @@ static char VERSION[] = "testing...";
 
 #include "ws2811.h"
 
-
-#define ARRAY_SIZE(stuff)                        (sizeof(stuff) / sizeof(stuff[0]))
+#define ARRAY_SIZE(stuff) (sizeof(stuff) / sizeof(stuff[0]))
 
 // defaults for cmdline options
-#define TARGET_FREQ                              WS2811_TARGET_FREQ
-#define GPIO_PIN                                 18
-#define DMA                                      5
-#define STRIP_TYPE				                 WS2811_STRIP_RGB		// WS2812/SK6812RGB integrated chip+leds
+#define TARGET_FREQ WS2811_TARGET_FREQ
+#define GPIO_PIN 18
+#define DMA 5
+#define STRIP_TYPE WS2811_STRIP_RGB // WS2812/SK6812RGB integrated chip+leds
 //#define STRIP_TYPE				             WS2811_STRIP_GBR		// WS2812/SK6812RGB integrated chip+leds
 //#define STRIP_TYPE				             SK6812_STRIP_RGBW		// SK6812RGBW (NOT SK6812RGB)
 
-#define WIDTH                                    300
-#define HEIGHT                                   1
-#define LED_COUNT                                (WIDTH * HEIGHT)
+#define WIDTH 300
+#define HEIGHT 1
+#define LED_COUNT (WIDTH * HEIGHT)
 
 int width = WIDTH;
 int height = HEIGHT;
@@ -73,28 +70,34 @@ int led_count = LED_COUNT;
 
 int clear_on_exit = 0;
 
+int firstSegmentLen = 83;
+int secondSegmentLen = 89;
+
+char *firstTempColor = "0x002BE5";
+int lastTempColor = 0xEC0406;
+
 ws2811_t ledstring =
-{
-    .freq = TARGET_FREQ,
-    .dmanum = DMA,
-    .channel =
     {
-        [0] =
-        {
-            .gpionum = GPIO_PIN,
-            .count = LED_COUNT,
-            .invert = 0,
-            .brightness = 255,
-            .strip_type = STRIP_TYPE,
-        },
-        [1] =
-        {
-            .gpionum = 0,
-            .count = 0,
-            .invert = 0,
-            .brightness = 0,
-        },
-    },
+	.freq = TARGET_FREQ,
+	.dmanum = DMA,
+	.channel =
+	    {
+		    [0] =
+			{
+			    .gpionum = GPIO_PIN,
+			    .count = LED_COUNT,
+			    .invert = 0,
+			    .brightness = 255,
+			    .strip_type = STRIP_TYPE,
+			},
+		    [1] =
+			{
+			    .gpionum = 0,
+			    .count = 0,
+			    .invert = 0,
+			    .brightness = 0,
+			},
+	    },
 };
 
 ws2811_led_t *matrix;
@@ -107,10 +110,10 @@ void matrix_render(void)
 
     for (x = 0; x < width; x++)
     {
-        for (y = 0; y < height; y++)
-        {
-            ledstring.channel[0].leds[(y * width) + x] = matrix[y * width + x];
-        }
+	for (y = 0; y < height; y++)
+	{
+	    ledstring.channel[0].leds[(y * width) + x] = matrix[y * width + x];
+	}
     }
 }
 
@@ -120,10 +123,10 @@ void matrix_raise(void)
 
     for (y = 0; y < (height - 1); y++)
     {
-        for (x = 0; x < width; x++)
-        {
-            matrix[y * width + x] = matrix[(y + 1)*width + x];
-        }
+	for (x = 0; x < width; x++)
+	{
+	    matrix[y * width + x] = matrix[(y + 1) * width + x];
+	}
     }
 }
 
@@ -131,38 +134,38 @@ void matrix_clear(void)
 {
     int x, y;
 
-    for (y = 0; y < (height ); y++)
+    for (y = 0; y < (height); y++)
     {
-        for (x = 0; x < width; x++)
-        {
-            matrix[y * width + x] = 0;
-        }
+	for (x = 0; x < width; x++)
+	{
+	    matrix[y * width + x] = 0;
+	}
     }
 }
 
-int dotspos[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+int dotspos[] = {0, 1, 2, 3, 4, 5, 6, 7};
 ws2811_led_t dotcolors[] =
-{
-    0x00200000,  // red
-    0x00201000,  // orange
-    0x00202000,  // yellow
-    0x00002000,  // green
-    0x00002020,  // lightblue
-    0x00000020,  // blue
-    0x00100010,  // purple
-    0x00200010,  // pink
+    {
+	0x00002BE5, // red
+	0x00201000, // orange
+	0x00202000, // yellow
+	0x00002000, // green
+	0x00002020, // lightblue
+	0x00000020, // blue
+	0x00100010, // purple
+	0x00200010, // pink
 };
 
 ws2811_led_t dotcolors_rgbw[] =
-{
-    0x00200000,  // red
-    0x10200000,  // red + W
-    0x00002000,  // green
-    0x10002000,  // green + W
-    0x00000020,  // blue
-    0x10000020,  // blue + W
-    0x00101010,  // white
-    0x10101010,  // white + W
+    {
+	0x00200000, // red
+	0x10200000, // red + W
+	0x00002000, // green
+	0x10002000, // green + W
+	0x00000020, // blue
+	0x10000020, // blue + W
+	0x00101010, // white
+	0x10101010, // white + W
 
 };
 
@@ -172,17 +175,67 @@ void matrix_bottom(void)
 
     for (i = 0; i < ARRAY_SIZE(dotspos); i++)
     {
-        dotspos[i]++;
-        if (dotspos[i] > (width - 1))
-        {
-            dotspos[i] = 0;
-        }
-
-	if (ledstring.channel[0].strip_type == SK6812_STRIP_RGBW) {
-		matrix[dotspos[i] + (height - 1) * width] = dotcolors_rgbw[i];
-	} else {
-		matrix[dotspos[i] + (height - 1) * width] = dotcolors[3];
+	dotspos[i]++;
+	if (dotspos[i] > (width - 1))
+	{
+	    dotspos[i] = 0;
 	}
+
+	if (ledstring.channel[0].strip_type == SK6812_STRIP_RGBW)
+	{
+	    matrix[dotspos[i] + (height - 1) * width] = dotcolors_rgbw[i];
+	}
+	else
+	{
+	    matrix[dotspos[i] + (height - 1) * width] = dotcolors[3];
+	}
+    }
+}
+
+void render_temperature(int value)
+{
+    int r1 = 0x2B;
+    int g1 = 0;
+    int b1 = 0xE5;
+
+    int r2 = 0x04;
+    int g2 = 0xEC;
+    int b2 = 0x06;
+
+    float dr = (r2 - r1) / (float)firstSegmentLen;
+    float dg = (g2 - g1) / (float)firstSegmentLen;
+    float db = (b2 - b1) / (float)firstSegmentLen;
+
+    //int firstColor = strtol(firstTempColor, NULL, 16);
+    //int delta = (lastTempColor - firstColor) / firstSegmentLen;
+
+    int i;
+    for (i = 0; i < firstSegmentLen; i++)
+    {
+		char res[9];
+		int nr = r1 + i * dr;
+		int ng = g1 + i * dg;
+		int nb = b1 + i * db;
+
+		sprintf(&res[0], "0x%02x%02x%02x", nr, ng, nb);
+		printf("\n");
+		printf(res);
+		printf("\n");
+		printf("%d ", nr);
+		printf("%d ", ng);
+		printf("%d ", nb);
+		printf("%ld ", strtol(res, NULL, 16));
+		fflush(stdout);
+		matrix[i] = strtol(res, NULL, 16);
+    }
+}
+
+void render_humidity(int value)
+{
+    int i;
+    for (i = 1; i < secondSegmentLen; i++)
+    {
+	matrix[firstSegmentLen + i] = dotcolors[6];
     }
 }
 
@@ -194,183 +247,204 @@ static void ctrl_c_handler(int signum)
 static void setup_handlers(void)
 {
     struct sigaction sa =
-    {
-        .sa_handler = ctrl_c_handler,
-    };
+	{
+	    .sa_handler = ctrl_c_handler,
+	};
 
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGTERM, &sa, NULL);
 }
 
-
 void parseargs(int argc, char **argv, ws2811_t *ws2811)
 {
-	int index;
-	int c;
+    int index;
+    int c;
 
-	static struct option longopts[] =
+    static struct option longopts[] =
 	{
-		{"help", no_argument, 0, 'h'},
-		{"dma", required_argument, 0, 'd'},
-		{"gpio", required_argument, 0, 'g'},
-		{"invert", no_argument, 0, 'i'},
-		{"clear", no_argument, 0, 'c'},
-		{"strip", required_argument, 0, 's'},
-		{"height", required_argument, 0, 'y'},
-		{"width", required_argument, 0, 'x'},
-		{"version", no_argument, 0, 'v'},
-		{0, 0, 0, 0}
-	};
+	    {"help", no_argument, 0, 'h'},
+	    {"dma", required_argument, 0, 'd'},
+	    {"gpio", required_argument, 0, 'g'},
+	    {"invert", no_argument, 0, 'i'},
+	    {"clear", no_argument, 0, 'c'},
+	    {"strip", required_argument, 0, 's'},
+	    {"height", required_argument, 0, 'y'},
+	    {"width", required_argument, 0, 'x'},
+	    {"version", no_argument, 0, 'v'},
+	    {0, 0, 0, 0}};
 
-	while (1)
+    while (1)
+    {
+
+	index = 0;
+	c = getopt_long(argc, argv, "cd:g:his:vx:y:", longopts, &index);
+
+	if (c == -1)
+	    break;
+
+	switch (c)
 	{
+	case 0:
+	    /* handle flag options (array's 3rd field non-0) */
+	    break;
 
-		index = 0;
-		c = getopt_long(argc, argv, "cd:g:his:vx:y:", longopts, &index);
+	case 'h':
+	    fprintf(stderr, "%s version %s\n", argv[0], VERSION);
+	    fprintf(stderr, "Usage: %s \n"
+			    "-h (--help)    - this information\n"
+			    "-s (--strip)   - strip type - rgb, grb, gbr, rgbw\n"
+			    "-x (--width)   - matrix width (default 8)\n"
+			    "-y (--height)  - matrix height (default 8)\n"
+			    "-d (--dma)     - dma channel to use (default 5)\n"
+			    "-g (--gpio)    - GPIO to use must be one of 12,18,40,52\n"
+			    "                 If omitted, default is 18\n"
+			    "-i (--invert)  - invert pin output (pulse LOW)\n"
+			    "-c (--clear)   - clear matrix on exit.\n"
+			    "-v (--version) - version information\n",
+		    argv[0]);
+	    exit(-1);
 
-		if (c == -1)
-			break;
+	case 'D':
+	    break;
 
-		switch (c)
-		{
-		case 0:
-			/* handle flag options (array's 3rd field non-0) */
-			break;
-
-		case 'h':
-			fprintf(stderr, "%s version %s\n", argv[0], VERSION);
-			fprintf(stderr, "Usage: %s \n"
-				"-h (--help)    - this information\n"
-				"-s (--strip)   - strip type - rgb, grb, gbr, rgbw\n"
-				"-x (--width)   - matrix width (default 8)\n"
-				"-y (--height)  - matrix height (default 8)\n"
-				"-d (--dma)     - dma channel to use (default 5)\n"
-				"-g (--gpio)    - GPIO to use must be one of 12,18,40,52\n"
-				"                 If omitted, default is 18\n"
-				"-i (--invert)  - invert pin output (pulse LOW)\n"
-				"-c (--clear)   - clear matrix on exit.\n"
-				"-v (--version) - version information\n"
-				, argv[0]);
-			exit(-1);
-
-		case 'D':
-			break;
-
-		case 'g':
-			if (optarg) {
-				int gpio = atoi(optarg);
-/*
+	case 'g':
+	    if (optarg)
+	    {
+		int gpio = atoi(optarg);
+		/*
 	https://www.raspberrypi.org/forums/viewtopic.php?f=91&t=105044
 	PWM0, which can be set to use GPIOs 12, 18, 40, and 52. 
 	Only 12 (pin 32) and 18 (pin 12) are available on the B+/2B
 	PWM1 which can be set to use GPIOs 13, 19, 41, 45 and 53. 
 	Only 13 is available on the B+/2B, on pin 35
 */
-				switch (gpio) {
-					case 12:
-					case 18:
-					case 40:
-					case 52:
-						ws2811->channel[0].gpionum = gpio;
-						break;
-					default:
-						printf ("gpio %d doesnt support PWM0\n",gpio);
-						exit (-1);
-				}
-			}
-			break;
-
-		case 'i':
-			ws2811->channel[0].invert=1;
-			break;
-
-		case 'c':
-			clear_on_exit=1;
-			break;
-
-		case 'd':
-			if (optarg) {
-				int dma = atoi(optarg);
-				if (dma < 14) {
-					ws2811->dmanum = dma;
-				} else {
-					printf ("invalid dma %d\n", dma);
-					exit (-1);
-				}
-			}
-			break;
-
-		case 'y':
-			if (optarg) {
-				height = atoi(optarg);
-				if (height > 0) {
-					ws2811->channel[0].count = height * width;
-				} else {
-					printf ("invalid height %d\n", height);
-					exit (-1);
-				}
-			}
-			break;
-
-		case 'x':
-			if (optarg) {
-				width = atoi(optarg);
-				if (width > 0) {
-					ws2811->channel[0].count = height * width;
-				} else {
-					printf ("invalid width %d\n", width);
-					exit (-1);
-				}
-			}
-			break;
-
-		case 's':
-			if (optarg) {
-				if (!strncasecmp("rgb", optarg, 4)) {
-					ws2811->channel[0].strip_type = WS2811_STRIP_RGB;
-				}
-				else if (!strncasecmp("rbg", optarg, 4)) {
-					ws2811->channel[0].strip_type = WS2811_STRIP_RBG;
-				}
-				else if (!strncasecmp("grb", optarg, 4)) {
-					ws2811->channel[0].strip_type = WS2811_STRIP_GRB;
-				}
-				else if (!strncasecmp("gbr", optarg, 4)) {
-					ws2811->channel[0].strip_type = WS2811_STRIP_GBR;
-				}
-				else if (!strncasecmp("brg", optarg, 4)) {
-					ws2811->channel[0].strip_type = WS2811_STRIP_BRG;
-				}
-				else if (!strncasecmp("bgr", optarg, 4)) {
-					ws2811->channel[0].strip_type = WS2811_STRIP_BGR;
-				}
-				else if (!strncasecmp("rgbw", optarg, 4)) {
-					ws2811->channel[0].strip_type = SK6812_STRIP_RGBW;
-				}
-				else if (!strncasecmp("grbw", optarg, 4)) {
-					ws2811->channel[0].strip_type = SK6812_STRIP_GRBW;
-				}
-				else {
-					printf ("invalid strip %s\n", optarg);
-					exit (-1);
-				}
-			}
-			break;
-
-		case 'v':
-			fprintf(stderr, "%s version %s\n", argv[0], VERSION);
-			exit(-1);
-
-		case '?':
-			/* getopt_long already reported error? */
-			exit(-1);
-
+		switch (gpio)
+		{
+		case 12:
+		case 18:
+		case 40:
+		case 52:
+		    ws2811->channel[0].gpionum = gpio;
+		    break;
 		default:
-			exit(-1);
+		    printf("gpio %d doesnt support PWM0\n", gpio);
+		    exit(-1);
 		}
-	}
-}
+	    }
+	    break;
 
+	case 'i':
+	    ws2811->channel[0].invert = 1;
+	    break;
+
+	case 'c':
+	    clear_on_exit = 1;
+	    break;
+
+	case 'd':
+	    if (optarg)
+	    {
+		int dma = atoi(optarg);
+		if (dma < 14)
+		{
+		    ws2811->dmanum = dma;
+		}
+		else
+		{
+		    printf("invalid dma %d\n", dma);
+		    exit(-1);
+		}
+	    }
+	    break;
+
+	case 'y':
+	    if (optarg)
+	    {
+		height = atoi(optarg);
+		if (height > 0)
+		{
+		    ws2811->channel[0].count = height * width;
+		}
+		else
+		{
+		    printf("invalid height %d\n", height);
+		    exit(-1);
+		}
+	    }
+	    break;
+
+	case 'x':
+	    if (optarg)
+	    {
+		width = atoi(optarg);
+		if (width > 0)
+		{
+		    ws2811->channel[0].count = height * width;
+		}
+		else
+		{
+		    printf("invalid width %d\n", width);
+		    exit(-1);
+		}
+	    }
+	    break;
+
+	case 's':
+	    if (optarg)
+	    {
+		if (!strncasecmp("rgb", optarg, 4))
+		{
+		    ws2811->channel[0].strip_type = WS2811_STRIP_RGB;
+		}
+		else if (!strncasecmp("rbg", optarg, 4))
+		{
+		    ws2811->channel[0].strip_type = WS2811_STRIP_RBG;
+		}
+		else if (!strncasecmp("grb", optarg, 4))
+		{
+		    ws2811->channel[0].strip_type = WS2811_STRIP_GRB;
+		}
+		else if (!strncasecmp("gbr", optarg, 4))
+		{
+		    ws2811->channel[0].strip_type = WS2811_STRIP_GBR;
+		}
+		else if (!strncasecmp("brg", optarg, 4))
+		{
+		    ws2811->channel[0].strip_type = WS2811_STRIP_BRG;
+		}
+		else if (!strncasecmp("bgr", optarg, 4))
+		{
+		    ws2811->channel[0].strip_type = WS2811_STRIP_BGR;
+		}
+		else if (!strncasecmp("rgbw", optarg, 4))
+		{
+		    ws2811->channel[0].strip_type = SK6812_STRIP_RGBW;
+		}
+		else if (!strncasecmp("grbw", optarg, 4))
+		{
+		    ws2811->channel[0].strip_type = SK6812_STRIP_GRBW;
+		}
+		else
+		{
+		    printf("invalid strip %s\n", optarg);
+		    exit(-1);
+		}
+	    }
+	    break;
+
+	case 'v':
+	    fprintf(stderr, "%s version %s\n", argv[0], VERSION);
+	    exit(-1);
+
+	case '?':
+	    /* getopt_long already reported error? */
+	    exit(-1);
+
+	default:
+	    exit(-1);
+	}
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -384,27 +458,30 @@ int main(int argc, char *argv[])
 
     if ((ret = ws2811_init(&ledstring)) != WS2811_SUCCESS)
     {
-        fprintf(stderr, "ws2811_init failed: %s\n", ws2811_get_return_t_str(ret));
-        return ret;
+	fprintf(stderr, "ws2811_init failed: %s\n", ws2811_get_return_t_str(ret));
+	return ret;
     }
 
     while (running)
     {
-        matrix_raise();
-        matrix_bottom();
-        matrix_render();
+	matrix_raise();
+	// matrix_bottom();
+	render_temperature(2);
+	render_humidity(4);
+	matrix_render();
 
-        if ((ret = ws2811_render(&ledstring)) != WS2811_SUCCESS)
-        {
-            fprintf(stderr, "ws2811_render failed: %s\n", ws2811_get_return_t_str(ret));
-            break;
-        }
+	if ((ret = ws2811_render(&ledstring)) != WS2811_SUCCESS)
+	{
+	    fprintf(stderr, "ws2811_render failed: %s\n", ws2811_get_return_t_str(ret));
+	    break;
+	}
 
-        // 15 frames /sec
-        usleep(1000000 / 15);
+	// 15 frames /sec
+	usleep(1000000000 / 15);
     }
 
-    if (clear_on_exit) {
+    if (clear_on_exit)
+    {
 	matrix_clear();
 	matrix_render();
 	ws2811_render(&ledstring);
@@ -412,7 +489,6 @@ int main(int argc, char *argv[])
 
     ws2811_fini(&ledstring);
 
-    printf ("\n");
+    printf("\n");
     return ret;
 }
-

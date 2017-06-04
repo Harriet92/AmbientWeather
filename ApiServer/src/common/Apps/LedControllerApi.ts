@@ -6,11 +6,7 @@ export default class LedControllerApi {
     private ledAppProcess: ChildProcess;
 
     Run(temp: Number = 0) {        
-        this.ledAppProcess = spawn(this.ledAppPath, ["-c"], (error, stdout, stderr) => {
-            console.log(stdout);
-            console.log("Errors: ");
-            console.log(stderr);
-        });
+        this.ledAppProcess = spawn(this.ledAppPath, ["-c"]);
     }
 
     Stop() {

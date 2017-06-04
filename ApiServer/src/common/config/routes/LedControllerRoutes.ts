@@ -17,10 +17,12 @@ export default class LedControllerRoutes {
 
     turnOnLed = (req: express.Request, res: express.Response): void => {
         this.controller.Run();
+        res.status(200).json("Led probably turned on! ;D")
     };
 
     turnOffLed = (req: express.Request, res: express.Response): void => {
         this.controller.Stop();
+        res.status(200).json("Led probably turned off! ;D")
     };
 }
 

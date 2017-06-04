@@ -10,6 +10,7 @@ export default class CommonRoutes {
         app.use("/healthCheck", new HealthCheckRoutes().routes);
         app.use("/temp", new WeatherRoutes().routes);
         app.use("/led", new LedControllerRoutes().routes)
+        app.use("/blinds", new LedControllerRoutes().routes)
         return app;
     }
 }

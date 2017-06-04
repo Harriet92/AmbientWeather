@@ -2,7 +2,7 @@ import * as express from "express";
 import * as request from "request";
 
 import TemperatureDownloader from "./../../WeatherDownloader/TemperatureDownloader";
-import LedControllerApi from "./../../../Apps/LedControllerApi"
+import LedControllerApi from "./../../Apps/LedControllerApi"
 
 let router = express.Router();
 export default class LedControllerRoutes {

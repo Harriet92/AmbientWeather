@@ -26,4 +26,4 @@ export default class EnginesControllerRoutes {
 }
 
 
-Object.seal(LedControllerRoutes);
+Object.seal(EnginesControllerRoutes);
